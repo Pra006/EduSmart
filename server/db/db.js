@@ -5,7 +5,7 @@ export const db = async () => {
     try {
         await mongoose.connect(process.env.MONGO_URL || "mongodb+srv://Prakash:Prakash123@authdata.jyuw54c.mongodb.net/?appName=Authdata");
         
-        console.log("✅ Database connected successfully");
+        console.log('✅ MongoDB connected successfully');
         console.log(`📊 Database: ${mongoose.connection.name}`);
         
         // Connection event handlers

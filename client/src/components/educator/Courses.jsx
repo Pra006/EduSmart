@@ -25,24 +25,26 @@ const CourseTable = () => {
     fetchCourses();
   }, []);
 
-  // --- DELETE LOGIC ---
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this course?")) {
-      try {
-        await axios.delete(`http://localhost:3000/api/course/delete/${id}`);
-        setCourses(courses.filter(course => course._id !== id));
-      } catch (error) {
-        console.error("Delete error:", error);
-        alert("Failed to delete the course.");
-      }
+ // --- DELETE LOGIC ---
+const handleDelete = async (id) => {
+  if (window.confirm("Are you sure you want to delete this course?")) {
+    try {
+      // REMOVED "/delete" from the URL to match router.delete("/:id")
+      await axios.delete(`http://localhost:3000/api/course/${id}`); 
+      setCourses(courses.filter(course => course._id !== id));
+      alert("Course deleted successfully");
+    } catch (error) {
+      console.error("Delete error:", error);
+      alert("Failed to delete the course.");
     }
-  };
+  }
+};
 
-  // --- EDIT LOGIC ---
-  const handleEdit = (course) => {
-    // Navigates to your course form and sends the existing data
-    navigate("/create-course", { state: { editData: course } });
-  };
+// --- EDIT LOGIC ---
+const handleEdit = (course) => {
+  // Navigate to the educator course editor and pass edit data
+  navigate("/educator/new-course", { state: { editData: course } });
+};
 
   if (loading) {
     return (

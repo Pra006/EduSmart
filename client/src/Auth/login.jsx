@@ -27,6 +27,11 @@ const Login = () => {
       if (data.success) {
         console.log('Login successful:', data);
 
+        localStorage.clear();
+
+        localStorage.setItem("userId", data.existingUser.id);
+        localStorage.setItem("userRole", data.existingUser.role)
+
         // Update auth context with user data
         login(data.existingUser);
 

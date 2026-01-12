@@ -15,6 +15,15 @@ const enrollmentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  amount: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    enum: ['completed', 'pending', 'failed'],
+    default: 'completed',
+  },
   enrolledAt: {
     type: Date,
     default: Date.now,

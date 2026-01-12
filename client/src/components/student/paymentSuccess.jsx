@@ -1,34 +1,41 @@
 import React, { useEffect, useState } from "react";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { CheckCircle, Loader2, AlertCircle, ArrowRight, ShieldCheck } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios"; 
+import axios from "axios";
 
 const PaymentSuccess = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
+  
   const [isEnrolling, setIsEnrolling] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const enrollStudentInDatabase = async () => {
-      if (state && state.transactionId) {
+      // Ensure we have the required data from the redirect state
+      if (state && state.transactionId && state.courseId) {
         try {
           const studentId = localStorage.getItem("userId"); 
-          const courseId = state.courseId; 
-
+          
           const enrollmentData = {
             studentId: studentId,
-            courseId: courseId,
-            paymentId: state.transactionId
+            courseId: state.courseId,
+            paymentId: state.transactionId,
+            amount: state.amount || "Paid", 
           };
 
+          
           await axios.post("http://localhost:3000/api/enroll/create", enrollmentData);
+          
           console.log("Enrollment saved to MongoDB successfully");
-        } catch (error) {
-          console.error("Error saving enrollment:", error);
-        } finally {
+          setIsEnrolling(false);
+        } catch (err) {
+          console.error("Error saving enrollment:", err);
+          setError("We couldn't automate your enrollment. Please contact support with your Transaction ID.");
           setIsEnrolling(false);
         }
       } else {
+        
         setIsEnrolling(false);
       }
     };
@@ -36,73 +43,108 @@ const PaymentSuccess = () => {
     enrollStudentInDatabase();
   }, [state]);
 
+
   if (!state) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">No payment data found.</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white">
+        <AlertCircle className="h-12 w-12 text-red-500 mb-4" />
+        <h2 className="text-xl font-bold">Session Expired</h2>
+        <p className="text-gray-500 mb-6">We couldn't find any transaction details.</p>
+        <button onClick={() => navigate("/")} className="bg-gray-900 text-white px-6 py-2 rounded-lg">Go to Home</button>
       </div>
     );
   }
 
-  // UPDATED NAVIGATION HANDLER
   const handleGoToCourses = () => {
     navigate("/my-courses", { 
       state: { 
-        transactionId: state.transactionId,
-        courseId: state.courseId,
-        courseName: state.courseName, // This shows the name in MyCourses
-        thumbnail: state.thumbnail,   // This shows the image in MyCourses
-        instructor: state.instructor,
-        category: state.category
+        courseId: state.courseId, 
+        courseName: state.courseName, 
+        thumbnail: state.thumbnail, 
+        instructor: state.instructor || "Expert Instructor",
+        category: state.category || "General",
+        transactionId: state.transactionId 
       } 
     });
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="bg-white p-10 rounded-3xl shadow-lg max-w-md w-full text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
+      <div className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-2xl max-w-lg w-full text-center border border-gray-100">
+        
         {isEnrolling ? (
-          <div className="flex flex-col items-center">
-            <Loader2 className="h-12 w-12 text-indigo-600 animate-spin mb-4" />
-            <p className="text-gray-600 font-medium">Finalizing your enrollment...</p>
+          <div className="flex flex-col items-center py-10">
+            <Loader2 className="h-16 w-16 text-indigo-600 animate-spin mb-6" />
+            <h2 className="text-2xl font-bold text-gray-900">Finalizing Enrollment</h2>
+            <p className="text-gray-500 mt-2">Setting up your access to {state.courseName}...</p>
           </div>
         ) : (
           <>
-            <div className="relative mb-6">
-              {/* Show thumbnail if available for better UX */}
-              {state.thumbnail && (
-                <img 
-                  src={state.thumbnail} 
-                  alt="Course" 
-                  className="w-24 h-24 rounded-2xl mx-auto object-cover border-4 border-green-50 shadow-md mb-2" 
-                />
-              )}
-              <CheckCircle className="h-10 w-10 text-green-500 absolute -bottom-2 right-1/2 translate-x-12 bg-white rounded-full" />
+            {/* Visual Header */}
+            <div className="relative flex justify-center mb-8">
+              <div className="relative">
+                {state.thumbnail ? (
+                  <img 
+                    src={state.thumbnail} 
+                    alt="Course Thumbnail" 
+                    className="w-32 h-32 rounded-3xl object-cover shadow-2xl border-4 border-white"
+                  />
+                ) : (
+                  <div className="w-32 h-32 rounded-3xl bg-indigo-50 flex items-center justify-center">
+                    <ShieldCheck className="h-14 w-14 text-indigo-600" />
+                  </div>
+                )}
+                <div className="absolute -bottom-3 -right-3 bg-green-500 rounded-full p-2 border-4 border-white shadow-lg">
+                  <CheckCircle className="h-6 w-6 text-white" />
+                </div>
+              </div>
             </div>
 
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Payment Successful 🎉</h1>
-            <p className="text-gray-600 mb-6">Your course has been successfully added to your library.</p>
+            <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Success! 🎉</h1>
+            <p className="text-gray-500 mb-8">Your payment was processed and your enrollment is confirmed.</p>
             
-            <div className="bg-gray-50 rounded-2xl p-5 text-left space-y-3 mb-8 border border-gray-100">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-500 text-sm">Course</span>
-                <span className="font-bold text-gray-800 text-sm">{state.courseName}</span>
+            {/* Detailed Info Card */}
+            <div className="bg-gray-50 rounded-3xl p-6 text-left mb-8 space-y-4 border border-gray-100">
+              <div className="flex justify-between items-start">
+                <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">Course Name</span>
+                <span className="font-bold text-gray-900 text-sm text-right max-w-[200px]">{state.courseName}</span>
               </div>
+              
               <div className="flex justify-between items-center">
-                <span className="text-gray-500 text-sm">Status</span>
-                <span className="text-green-600 font-bold text-xs uppercase bg-green-50 px-2 py-1 rounded">Confirmed</span>
+                <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">Instructor</span>
+                <span className="font-semibold text-gray-700 text-sm">{state.instructor || "Team LMS"}</span>
               </div>
-              <p className="text-[10px] text-gray-400 font-mono mt-2 pt-2 border-t border-gray-200">
-                TXN: {state.transactionId}
-              </p>
+
+              <div className="flex justify-between items-center">
+                <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">Status</span>
+                <span className="bg-green-100 text-green-700 text-[10px] font-black px-3 py-1 rounded-full uppercase">Lifetime Access</span>
+              </div>
+
+              <div className="pt-4 border-t border-gray-200">
+                <span className="text-gray-400 text-[10px] font-bold uppercase block mb-1">Transaction Reference</span>
+                <code className="text-xs text-indigo-600 font-mono break-all">{state.transactionId}</code>
+              </div>
             </div>
 
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 rounded-xl flex items-center gap-3 text-left">
+                <AlertCircle className="h-5 w-5 text-red-500 shrink-0" />
+                <p className="text-xs text-red-600 font-medium">{error}</p>
+              </div>
+            )}
+
+            {/* Primary Action */}
             <button
               onClick={handleGoToCourses}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-bold transition-all shadow-lg shadow-indigo-100 active:scale-95"
+              className="group w-full bg-indigo-600 hover:bg-indigo-700 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-xl shadow-indigo-100 flex items-center justify-center gap-2 active:scale-[0.98]"
             >
-              Go to My Courses
+              Start Learning Now
+              <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </button>
+
+            <p className="mt-6 text-xs text-gray-400">
+              A confirmation email has been sent to your registered address.
+            </p>
           </>
         )}
       </div>

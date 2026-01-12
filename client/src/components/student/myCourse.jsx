@@ -6,51 +6,41 @@ const MyCourses = () => {
     const [courses, setCourses] = useState([]);
     const location = useLocation();
     const navigate = useNavigate();
-    const state = location.state; 
+    const state = location.state;
 
-    useEffect(() => {
-        // 1. Load existing courses from LocalStorage
-        const storedCourses = JSON.parse(localStorage.getItem("mycourses") || "[]");
+   useEffect(() => {
+        // 1. Identify User
+        const currentUser = JSON.parse(localStorage.getItem("activeUser") || "{}");
+        const userId = currentUser.email || currentUser.id || "guest";
+        const userStorageKey = `mycourses_${userId}`;
+
+        // 2. Load Existing Data
+        const storedCourses = JSON.parse(localStorage.getItem(userStorageKey) || "[]");
         let updatedList = [...storedCourses];
 
-        // 2. Logic to add a new course if we just arrived from Payment/Success
-        // We check for transactionId OR courseId to be safe
-        if (state && (state.transactionId || state.courseId)) {
-            const incomingId = state.id || state.courseId || state.transactionId;
-            
-            // Check for duplicates so we don't add the same course twice on refresh
-            const isDuplicate = storedCourses.some(item => item.id === incomingId);
+        // 3. Process New Enrollment from PaymentSuccess
+        if (state && state.courseId && state.transactionId) {
+            const isDuplicate = storedCourses.some(item => item.id === state.courseId);
 
             if (!isDuplicate) {
                 const newCourse = {
-                    id: incomingId,
-                    name: state.courseName || state.title || "Untitled Course", 
-                    instructor: state.instructor || state.instructorName || "Expert Instructor",
+                    id: state.courseId,
+                    name: state.courseName || "Untitled Course", 
+                    instructor: state.instructor || "Expert Instructor",
                     thumbnail: state.thumbnail || "https://via.placeholder.com/300",
                     category: state.category || "General",
                     date: new Date().toLocaleDateString(),
                 };
 
-                updatedList = [newCourse, ...storedCourses]; // Add new course to the top
-                localStorage.setItem("mycourses", JSON.stringify(updatedList));
+                updatedList = [newCourse, ...storedCourses];
+                localStorage.setItem(userStorageKey, JSON.stringify(updatedList));
             }
         }
 
-        // 3. APPLY FILTERS
-        // This ensures if you clicked "Data Science" in the Navbar, only that shows.
-        if (state && state.filterByCategory) {
-            const filtered = updatedList.filter(
-                c => c.category?.toLowerCase() === state.filterByCategory.toLowerCase()
-            );
-            setCourses(filtered);
-        } else if (state && state.filterById) {
-            const filtered = updatedList.filter(c => c.id === state.filterById);
-            setCourses(filtered);
-        } else {
-            setCourses(updatedList);
-        }
+        // 4. Update UI State
+        setCourses(updatedList);
 
-        // Clean up the location state so refreshing doesn't re-trigger the "New Course" logic
+        // 5. Clean up URL state so refresh doesn't duplicate logic
         window.history.replaceState({}, document.title);
 
     }, [state]);

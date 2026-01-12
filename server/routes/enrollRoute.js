@@ -6,4 +6,4 @@ const router = express.Router();
 router.post('/create', createEnrollment);
 router.get('/my-courses/:studentId', getStudentCourses);
 
-export default router;   // ✅ ES MODULE EXPORT
+export default router;

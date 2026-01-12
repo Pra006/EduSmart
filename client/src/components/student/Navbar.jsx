@@ -26,9 +26,9 @@ const Navbar = () => {
   const menuItems = [
     { name: "Home", link: "home" },
     { name: "Courses", link: "course-list" },
-    { name: "Categories", link: "categories" },
     { name: "About", link: "about" },
     { name: "Contact", link: "contact" },
+    { name: "Instructor", link: "instructor" },
   ];
 
   const handleScroll = (section) => {
@@ -39,7 +39,7 @@ const Navbar = () => {
   };
 
   const handleLogout = async () => {
-    await logout(); // Calls the logout from your AuthContext
+    await logout();
     setProfileOpen(false);
     navigate('/login');
   };
@@ -51,26 +51,45 @@ const Navbar = () => {
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-linear-to-br from-indigo-400 to-blue-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-blue-500 flex items-center justify-center">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
-            <span className="font-bold text-xl bg-linear-to-r from-indigo-500 to-blue-600 bg-clip-text text-transparent">
+            <span className="font-bold text-xl bg-gradient-to-r from-indigo-500 to-blue-600 bg-clip-text text-transparent">
               EduSmart
             </span>
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
-            {menuItems.map((item, index) => (
-              item.name === "Home" ? (
-                <button
-                  key={index}
-                  onClick={() => handleScroll("home")}
-                  className="text-gray-700 hover:text-indigo-500 font-medium transition-colors"
-                >
-                  {item.name}
-                </button>
-              ) : (
+            {menuItems.map((item, index) => {
+              // 1. Specific Logic for Home (Scroll)
+              if (item.name === "Home") {
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleScroll("home")}
+                    className="text-gray-700 hover:text-indigo-500 font-medium transition-colors cursor-pointer"
+                  >
+                    {item.name}
+                  </button>
+                );
+              }
+
+              // 2. Specific Logic for Instructor (Always Login)
+              if (item.name === "Instructor") {
+                return (
+                  <button
+                    key={index}
+                    onClick={() => navigate('/login')}
+                    className="text-gray-700 hover:text-indigo-500 font-medium transition-colors cursor-pointer"
+                  >
+                    {item.name}
+                  </button>
+                );
+              }
+
+              // 3. Default Logic for other links
+              return (
                 <Link
                   key={index}
                   to={`/${item.link}`}
@@ -78,13 +97,13 @@ const Navbar = () => {
                 >
                   {item.name}
                 </Link>
-              )
-            ))}
+              );
+            })}
           </div>
 
-          {/* Auth Buttons / Profile Dropdown */}
+          {/* Auth Section */}
           <div className="hidden md:flex gap-3 items-center">
-            {!user ? ( // Condition: If user is null, show login/signup
+            {!user ? (
               <>
                 <Link to="/login">
                   <button className="text-gray-500 hover:text-indigo-500 px-3 py-1.5 rounded-md font-medium">
@@ -97,7 +116,7 @@ const Navbar = () => {
                   </button>
                 </Link>
               </>
-            ) : ( // If user is logged in, show Profile Icon
+            ) : (
               <div className='relative' ref={dropdownRef}>
                 <button 
                   onClick={() => setProfileOpen(!profileOpen)}
@@ -109,38 +128,26 @@ const Navbar = () => {
                   <ChevronDown size={16} className={`text-gray-600 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
                 </button>
 
-                {/* Profile Dropdown Menu */}
                 {profileOpen && (
-                  <div className='absolute right-0 mt-3 w-56 bg-white border border-gray-100 rounded-xl shadow-2xl z-50 py-2 animate-in fade-in zoom-in duration-200'>
+                  <div className='absolute right-0 mt-3 w-56 bg-white border border-gray-100 rounded-xl shadow-2xl z-50 py-2'>
                     <div className="px-4 py-2 border-b border-gray-50 mb-1">
                       <p className="text-xs text-gray-400">Signed in as</p>
-                      <p className="text-sm font-semibold truncate text-gray-700">{user.email || 'User'}</p>
+                      <p className="text-sm font-semibold truncate text-gray-700">{user.fullname || user.email || 'User'}</p>
                     </div>
 
-                    <Link 
-                      to='/profile' 
-                      className='flex items-center gap-3 py-2.5 px-4 text-gray-700 hover:bg-indigo-50 transition-colors'
-                      onClick={() => setProfileOpen(false)}
-                    >
+                    <Link to='/profile' className='flex items-center gap-3 py-2.5 px-4 text-gray-700 hover:bg-indigo-50 transition-colors' onClick={() => setProfileOpen(false)}>
                       <User size={18} className="text-indigo-500" />
                       <span className='font-medium text-sm'>My Profile</span>
                     </Link>
 
-                    <Link 
-                      to="/course-management" 
-                      className='flex items-center gap-3 py-2.5 px-4 text-gray-700 hover:bg-indigo-50 transition-colors'
-                      onClick={() => setProfileOpen(false)}
-                    >
+                    <Link to="/course-management" className='flex items-center gap-3 py-2.5 px-4 text-gray-700 hover:bg-indigo-50 transition-colors' onClick={() => setProfileOpen(false)}>
                       <BookOpen size={18} className="text-indigo-500" />
                       <span className='font-medium text-sm'>Course Management</span>
                     </Link>
 
                     <div className='border-t border-gray-100 my-1'></div>
 
-                    <button
-                      onClick={handleLogout}
-                      className='w-full text-left flex items-center gap-3 py-2.5 px-4 text-red-600 hover:bg-red-50 transition-colors'
-                    >
+                    <button onClick={handleLogout} className='w-full text-left flex items-center gap-3 py-2.5 px-4 text-red-600 hover:bg-red-50 transition-colors'>
                       <LogOut size={18} />
                       <span className='font-medium text-sm'>Logout</span>
                     </button>
@@ -158,28 +165,35 @@ const Navbar = () => {
 
         {/* Mobile Menu */}
         {menuopen && (
-          <div className="md:hidden flex flex-col items-center gap-4 bg-white py-6 rounded-b-2xl border-t border-gray-50 shadow-inner">
+          <div className="md:hidden flex flex-col items-center gap-4 bg-white py-6 border-t border-gray-50 shadow-inner">
             {menuItems.map((item, index) => (
-              <Link
+              <button
                 key={index}
-                to={`/${item.link}`}
-                onClick={() => setMenuOpen(false)}
+                onClick={() => {
+                  setMenuOpen(false);
+                  if (item.name === "Instructor") {
+                    navigate('/login'); // Always Login on Mobile too
+                  } else if (item.name === "Home") {
+                    handleScroll("home");
+                  } else {
+                    navigate(`/${item.link}`);
+                  }
+                }}
                 className="text-gray-700 text-lg font-medium hover:text-indigo-500"
               >
                 {item.name}
-              </Link>
+              </button>
             ))}
             
-            {/* Mobile Auth/Profile */}
             {!user ? (
-              <div className="flex flex-col w-full px-10 gap-2 mt-2">
-                <Link to="/login" onClick={() => setMenuOpen(false)} className="text-center py-2 text-indigo-500 font-bold border border-indigo-500 rounded-full">Login</Link>
-                <Link to="/signup" onClick={() => setMenuOpen(false)} className="text-center py-2 bg-indigo-500 text-white rounded-full">Signup</Link>
+              <div className="flex flex-col w-full px-10 gap-2 mt-2 text-center">
+                <Link to="/login" onClick={() => setMenuOpen(false)} className="py-2 text-indigo-500 font-bold border border-indigo-500 rounded-full">Login</Link>
+                <Link to="/signup" onClick={() => setMenuOpen(false)} className="py-2 bg-indigo-500 text-white rounded-full">Signup</Link>
               </div>
             ) : (
-              <div className="flex flex-col w-full px-10 gap-3 mt-2 border-t pt-4">
-                 <Link to="/profile" onClick={() => setMenuOpen(false)} className="text-gray-700 font-medium text-center">My Profile</Link>
-                 <Link to="/course-management" onClick={() => setMenuOpen(false)} className="text-gray-700 font-medium text-center">Course Management</Link>
+              <div className="flex flex-col w-full px-10 gap-3 mt-2 border-t pt-4 text-center">
+                 <Link to="/profile" onClick={() => setMenuOpen(false)} className="text-gray-700 font-medium">My Profile</Link>
+                 <Link to="/course-management" onClick={() => setMenuOpen(false)} className="text-gray-700 font-medium">My Learning</Link>
                  <button onClick={handleLogout} className="text-red-500 font-bold">Logout</button>
               </div>
             )}
@@ -190,4 +204,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default Navbar

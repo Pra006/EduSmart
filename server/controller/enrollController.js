@@ -1,44 +1,40 @@
-import Enrollment from '../model/enrollModel.js';
+import Enrollment from "../model/enrollModel.js";
+import User  from "../model/userMlodel.js";
 
 export const createEnrollment = async (req, res) => {
-  try {
-    const { studentId, courseId, paymentId } = req.body;
+    try {
+        const { studentId, courseId, paymentId, amount } = req.body;
+        const existingEnrollment = await Enrollment.findOne({ studentId, courseId });
+        if (existingEnrollment) {
+            return res.status(400).json({ message: "Already enrolled in this course" });
+        }
+        const newEnrollment = await Enrollment.create({
+            studentId,
+            courseId,
+            paymentId,
+            amount
+        });
+        await User.findByIdAndUpdate(studentId, {
+            $push: { enrolledCourses: courseId }
+        });
 
-    const existing = await Enrollment.findOne({ studentId, courseId });
-    if (existing) {
-      return res.status(400).json({ message: 'Student already enrolled' });
+        res.status(201).json({ success: true, enrollment: newEnrollment });
+    } catch (error) {
+        console.error("Enrollment Error:", error);
+        res.status(500).json({ message: "Internal Server Error" });
     }
+};
 
-    const newEnrollment = new Enrollment({
-      studentId,
-      courseId,
-      paymentId,
-    });
-
-    await newEnrollment.save();
-
-    res.status(201).json({
+export const getStudentCourses = async (req, res)=> {
+  try{
+    const {studentId}= req.params;
+    const enrolledCourses = await Enrollment.find({studentId})
+    .populate('courseId');
+    res.status(200).json({
       success: true,
-      message: 'Enrolled successfully!',
+      courses: enrolled
     });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch(error){
+    res.status(500).json({message: "Error fetching courses"})
   }
-};
-
-export const getStudentCourses = async (req, res) => {
-  try {
-    const { studentId } = req.params;
-
-    const enrollments = await Enrollment.find({ studentId })
-      .populate('courseId');
-
-    const courses = enrollments
-      .map(enroll => enroll.courseId)
-      .filter(course => course !== null);
-
-    res.status(200).json(courses);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+}

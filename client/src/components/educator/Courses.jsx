@@ -71,7 +71,7 @@ const handleEdit = (course) => {
                 <tr className="bg-slate-50 border-b border-slate-200">
                   <th className="p-4 font-semibold text-slate-600 text-sm">Course</th>
                   <th className="p-4 font-semibold text-slate-600 text-sm hidden md:table-cell">Instructor</th>
-                  <th className="p-4 font-semibold text-slate-600 text-sm">Duration</th> {/* RESTORED */}
+                  <th className="p-4 font-semibold text-slate-600 text-sm">Duration</th>
                   <th className="p-4 font-semibold text-slate-600 text-sm">Price</th>
                   <th className="p-4 font-semibold text-slate-600 text-sm">Video ID</th>
                   <th className="p-4 font-semibold text-slate-600 text-sm text-center">Actions</th>

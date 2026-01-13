@@ -19,7 +19,7 @@ const upload = multer({storage: storage});
 router.post("/create",upload.array('videos', 10), createCourse);
 router.get("/all", getAllCourse);
 router.get("/:id", getCourseById);
-router.put("/:id", updateCourse);
+router.put("/:id",upload.array('videos', 10), updateCourse);
 router.delete("/:id", deleteCourse);
 
 export default router;

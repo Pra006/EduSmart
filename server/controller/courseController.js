@@ -64,20 +64,64 @@ export const getCourseById = async (req, res) => {
 export const updateCourse = async (req, res) => {
     try {
         const { id } = req.params;
-        // If updating text fields, make sure to handle JSON parsing if sent via FormData
-        const updateData = req.body;
+        const { title, category, instructor, price, duration, thumbnail } = req.body;
         
+        const learn = req.body.learn ? JSON.parse(req.body.learn) : [];
+        const lessonMetadata = req.body.lessonMetadata ? JSON.parse(req.body.lessonMetadata) : [];
+        const videoIndices = req.body.videoIndices ? JSON.parse(req.body.videoIndices) : [];
+
+        const existingCourse = await courseCreate.findById(id);
+        if (!existingCourse) {
+            return res.status(404).json({ message: "Course not found" });
+        }
+
+        // Map lessons: use new videos if uploaded, otherwise keep old ones
+        const lessons = lessonMetadata.map((lesson) => {
+            const lessonIndex = lesson.index;
+            const videoFileIndex = videoIndices.indexOf(lessonIndex);
+            const file = videoFileIndex >= 0 && req.files ? req.files[videoFileIndex] : null;
+            
+            // If a new file is uploaded, use it; otherwise check if lesson exists and keep old video
+            if (file) {
+                return {
+                    title: lesson.title,
+                    duration: lesson.duration,
+                    videoUrl: `/uploads/${file.filename}`,
+                    videoName: file.originalname
+                };
+            } else {
+                // Keep existing lesson if available
+                const existingLesson = existingCourse.lessons[lessonIndex];
+                return {
+                    title: lesson.title,
+                    duration: lesson.duration,
+                    videoUrl: existingLesson?.videoUrl || "",
+                    videoName: existingLesson?.videoName || ""
+                };
+            }
+        });
+
+        // Prepare update data
+        const updateData = {
+            title,
+            category,
+            instructor,
+            price: Number(price),
+            duration,
+            thumbnail,
+            learn,
+            lessons
+        };
+
         const updatedCourse = await courseCreate.findByIdAndUpdate(
             id,
             updateData,
             { new: true, runValidators: true }
         );
 
-        if (!updatedCourse) {
-            return res.status(404).json({ message: "Course not found" });
-        }
         return res.status(200).json(updatedCourse);
     } catch (error) {
+        console.error("Update Error:", error);
         res.status(500).json({ message: error.message });
     }
 };

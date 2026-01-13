@@ -25,8 +25,8 @@ import MyCourse from './components/student/myCourse.jsx';
 import CoursePlayer from './components/student/CoursePlayer.jsx';
 import NewCourse from './components/educator/NewCourse.jsx';
 import Courses from './components/educator/Courses.jsx'
-
 import Admin from './pages/admin/Admin.jsx'
+import StudentProfile from './components/student/StudentProfile.jsx'
     
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -54,6 +54,7 @@ const App = () => {
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/my-courses" element={<MyCourse />} />
           <Route path="/course-player"element={<CoursePlayer />} />
+          <Route path="/my-profile" element={<StudentProfile/>}/>
          
           <Route path='/educator'element={<Educator />}>
             <Route path='educator' element={<Dashboard />} />

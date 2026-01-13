@@ -172,22 +172,26 @@ const EducatorCourseCreator = () => {
     formData.append("thumbnail", courseData.thumbnail);
     formData.append("learn", JSON.stringify(courseData.learn.filter(l => l.trim())));
 
-    // 2. Append Lesson metadata (titles/durations)
-    const lessonMetadata = courseData.lessons.map(l => ({
+
+    const lessonMetadata = courseData.lessons.map((l, index) => ({
+        index: index,
         title: l.title || "Untitled Lesson",
         duration: l.duration || "N/A"
     }));
     formData.append("lessonMetadata", JSON.stringify(lessonMetadata));
 
-    // 3. Append actual video files in the SAME ORDER as lessonMetadata
-    courseData.lessons.forEach((lesson) => {
+    
+    const videoIndices = [];
+    courseData.lessons.forEach((lesson, index) => {
       if (lesson.videoFile) {
         formData.append("videos", lesson.videoFile);
-        console.log(`📹 Adding video: ${lesson.videoFile.name}`);
+        videoIndices.push(index);
+        console.log(`📹 Adding video for lesson ${index}: ${lesson.videoFile.name}`);
       } else {
         console.warn(`⚠️ Lesson "${lesson.title}" has no video`);
       }
     });
+    formData.append("videoIndices", JSON.stringify(videoIndices));
 
     try {
       console.log(isEdit ? "📤 Sending course update request..." : "📤 Sending course creation request...");

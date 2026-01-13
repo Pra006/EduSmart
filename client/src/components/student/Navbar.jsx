@@ -1,7 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { BookOpen, LogOut, User, ChevronDown, GraduationCap } from 'lucide-react';
-import { useAuth } from '../../Auth/AuthContext.jsx';
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  BookOpen,
+  LogOut,
+  User,
+  ChevronDown,
+  GraduationCap,
+} from "lucide-react";
+import { useAuth } from "../../Auth/AuthContext.jsx";
+import { Bell } from "lucide-react";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -17,9 +24,9 @@ const Navbar = () => {
         setProfileOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -32,23 +39,22 @@ const Navbar = () => {
   ];
 
   const handleScroll = (section) => {
-    navigate('/');
+    navigate("/");
     setTimeout(() => {
-      document.getElementById(section)?.scrollIntoView({ behavior: 'smooth' });
+      document.getElementById(section)?.scrollIntoView({ behavior: "smooth" });
     }, 0);
   };
 
   const handleLogout = async () => {
     await logout();
     setProfileOpen(false);
-    navigate('/login');
+    navigate("/login");
   };
 
   return (
-    <div className='bg-white/95 py-2 sticky top-0 z-50 w-full shadow-xl'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='flex justify-between items-center h-16'>
-
+    <div className="bg-white/95 py-2 sticky top-0 z-50 w-full shadow-xl">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-400 to-blue-500 flex items-center justify-center">
@@ -80,7 +86,7 @@ const Navbar = () => {
                 return (
                   <button
                     key={index}
-                    onClick={() => navigate('/login')}
+                    onClick={() => navigate("/login")}
                     className="text-gray-700 hover:text-indigo-500 font-medium transition-colors cursor-pointer"
                   >
                     {item.name}
@@ -117,49 +123,83 @@ const Navbar = () => {
                 </Link>
               </>
             ) : (
-              <div className='relative' ref={dropdownRef}>
-                <button 
-                  onClick={() => setProfileOpen(!profileOpen)}
-                  className='flex items-center gap-2 p-1 pr-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-all border border-gray-200 shadow-sm'
-                >
-                  <div className='w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white'>
-                    <User size={18} />
-                  </div>
-                  <ChevronDown size={16} className={`text-gray-600 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
+              <div className="flex items-center gap-4">
+                <button className="bg-gray-100 p-2 rounded-md hover:bg-gray-200 transition-colors relative">
+                  <Bell className="w-6 h-6 text-gray-700" />
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
+                    3
+                  </span>
                 </button>
 
-                {profileOpen && (
-                  <div className='absolute right-0 mt-3 w-56 bg-white border border-gray-100 rounded-xl shadow-2xl z-50 py-2'>
-                    <div className="px-4 py-2 border-b border-gray-50 mb-1">
-                      <p className="text-xs text-gray-400">Signed in as</p>
-                      <p className="text-sm font-semibold truncate text-gray-700">{user.fullname || user.email || 'User'}</p>
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    onClick={() => setProfileOpen(!profileOpen)}
+                    className="flex items-center gap-2 p-1 pr-3 rounded-full bg-gray-100 hover:bg-gray-200 transition-all border border-gray-200 shadow-sm"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center text-white">
+                      <User size={18} />
                     </div>
+                    <ChevronDown
+                      size={16}
+                      className={`text-gray-600 transition-transform duration-200 ${
+                        profileOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
 
-                    <Link to='/profile' className='flex items-center gap-3 py-2.5 px-4 text-gray-700 hover:bg-indigo-50 transition-colors' onClick={() => setProfileOpen(false)}>
-                      <User size={18} className="text-indigo-500" />
-                      <span className='font-medium text-sm'>My Profile</span>
-                    </Link>
+                  {profileOpen && (
+                    <div className="absolute right-0 mt-3 w-56 bg-white border border-gray-100 rounded-xl shadow-2xl z-50 py-2">
+                      <div className="px-4 py-2 border-b border-gray-50 mb-1">
+                        <p className="text-xs text-gray-400">Signed in as</p>
+                        <p className="text-sm font-semibold truncate text-gray-700">
+                          {user.fullname || user.email || "User"}
+                        </p>
+                      </div>
 
-                    <Link to="/course-management" className='flex items-center gap-3 py-2.5 px-4 text-gray-700 hover:bg-indigo-50 transition-colors' onClick={() => setProfileOpen(false)}>
-                      <BookOpen size={18} className="text-indigo-500" />
-                      <span className='font-medium text-sm'>Course Management</span>
-                    </Link>
+                      <Link
+                        to="/my-profile"
+                        className="flex items-center gap-3 py-2.5 px-4 text-gray-700 hover:bg-indigo-50 transition-colors"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        <User size={18} className="text-indigo-500" />
+                        <span className="font-medium text-sm">My Profile</span>
+                      </Link>
 
-                    <div className='border-t border-gray-100 my-1'></div>
+                      <Link
+                        to="/my-courses"
+                        className="flex items-center gap-3 py-2.5 px-4 text-gray-700 hover:bg-indigo-50 transition-colors"
+                        onClick={() => setProfileOpen(false)}
+                      >
+                        <BookOpen size={18} className="text-indigo-500" />
+                        <span className="font-medium text-sm">My Learning</span>
+                      </Link>
 
-                    <button onClick={handleLogout} className='w-full text-left flex items-center gap-3 py-2.5 px-4 text-red-600 hover:bg-red-50 transition-colors'>
-                      <LogOut size={18} />
-                      <span className='font-medium text-sm'>Logout</span>
-                    </button>
-                  </div>
-                )}
+                      <div className="border-t border-gray-100 my-1"></div>
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left flex items-center gap-3 py-2.5 px-4 text-red-600 hover:bg-red-50 transition-colors"
+                      >
+                        <LogOut size={18} />
+                        <span className="font-medium text-sm">Logout</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>
 
           {/* Mobile Toggle */}
-          <button onClick={() => setMenuOpen(!menuopen)} className='md:hidden p-2'>
-            {menuopen ? <span className="text-2xl">✕</span> : <span className="text-2xl">☰</span>}
+          <button
+            onClick={() => setMenuOpen(!menuopen)}
+            className="md:hidden p-2"
+          >
+            {menuopen ? (
+              <span className="text-2xl">✕</span>
+            ) : (
+              <span className="text-2xl">☰</span>
+            )}
           </button>
         </div>
 
@@ -172,7 +212,7 @@ const Navbar = () => {
                 onClick={() => {
                   setMenuOpen(false);
                   if (item.name === "Instructor") {
-                    navigate('/login'); // Always Login on Mobile too
+                    navigate("/login"); // Always Login on Mobile too
                   } else if (item.name === "Home") {
                     handleScroll("home");
                   } else {
@@ -184,17 +224,46 @@ const Navbar = () => {
                 {item.name}
               </button>
             ))}
-            
+
             {!user ? (
               <div className="flex flex-col w-full px-10 gap-2 mt-2 text-center">
-                <Link to="/login" onClick={() => setMenuOpen(false)} className="py-2 text-indigo-500 font-bold border border-indigo-500 rounded-full">Login</Link>
-                <Link to="/signup" onClick={() => setMenuOpen(false)} className="py-2 bg-indigo-500 text-white rounded-full">Signup</Link>
+                <Link
+                  to="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="py-2 text-indigo-500 font-bold border border-indigo-500 rounded-full"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setMenuOpen(false)}
+                  className="py-2 bg-indigo-500 text-white rounded-full"
+                >
+                  Signup
+                </Link>
               </div>
             ) : (
               <div className="flex flex-col w-full px-10 gap-3 mt-2 border-t pt-4 text-center">
-                 <Link to="/profile" onClick={() => setMenuOpen(false)} className="text-gray-700 font-medium">My Profile</Link>
-                 <Link to="/course-management" onClick={() => setMenuOpen(false)} className="text-gray-700 font-medium">My Learning</Link>
-                 <button onClick={handleLogout} className="text-red-500 font-bold">Logout</button>
+                <Link
+                  to="/profile"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-gray-700 font-medium"
+                >
+                  My Profile
+                </Link>
+                <Link
+                  to="/course-management"
+                  onClick={() => setMenuOpen(false)}
+                  className="text-gray-700 font-medium"
+                >
+                  My Learning
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="text-red-500 font-bold"
+                >
+                  Logout
+                </button>
               </div>
             )}
           </div>
@@ -204,4 +273,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar
+export default Navbar;

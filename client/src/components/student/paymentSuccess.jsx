@@ -9,33 +9,57 @@ const PaymentSuccess = () => {
   
   const [isEnrolling, setIsEnrolling] = useState(true);
   const [error, setError] = useState(null);
+  const [instructorName, setInstructorName] = useState(state?.instructor || "");
 
   useEffect(() => {
     const enrollStudentInDatabase = async () => {
+      // Fetch course details to get instructor name if not already provided
+      if (state && state.courseId && !instructorName) {
+        try {
+          const courseResponse = await axios.get(
+            `http://localhost:3000/api/course/${state.courseId}`
+          );
+          if (courseResponse.data && courseResponse.data.instructor) {
+            setInstructorName(courseResponse.data.instructor);
+          }
+        } catch (err) {
+          console.warn("Could not fetch instructor name:", err);
+        }
+      }
+
       // Ensure we have the required data from the redirect state
       if (state && state.transactionId && state.courseId) {
         try {
           const studentId = localStorage.getItem("userId"); 
           
+          console.log("StudentId from localStorage:", studentId);
+          console.log("CourseId from state:", state.courseId);
+          
+          // Validate studentId exists and is not empty
+          if (!studentId || studentId === "undefined" || studentId === "null") {
+            console.error("Invalid studentId:", studentId);
+            throw new Error("User not authenticated. Please login again.");
+          }
+          
           const enrollmentData = {
-            studentId: studentId,
-            courseId: state.courseId,
+            studentId: studentId.trim(),
+            courseId: state.courseId.trim(),
             paymentId: state.transactionId,
             amount: state.amount || "Paid", 
           };
 
+          console.log("Sending enrollment data:", enrollmentData);
+          const response = await axios.post("http://localhost:3000/api/enroll/create", enrollmentData);
           
-          await axios.post("http://localhost:3000/api/enroll/create", enrollmentData);
-          
-          console.log("Enrollment saved to MongoDB successfully");
+          console.log("Enrollment saved to MongoDB successfully:", response.data);
           setIsEnrolling(false);
         } catch (err) {
-          console.error("Error saving enrollment:", err);
-          setError("We couldn't automate your enrollment. Please contact support with your Transaction ID.");
+          console.error("Error saving enrollment:", err.response?.data || err.message);
+          setError(err.response?.data?.message || "We couldn't automate your enrollment. Please contact support with your Transaction ID.");
           setIsEnrolling(false);
         }
       } else {
-        
+        console.warn("Missing required state data:", { state });
         setIsEnrolling(false);
       }
     };
@@ -112,7 +136,7 @@ const PaymentSuccess = () => {
               
               <div className="flex justify-between items-center">
                 <span className="text-gray-400 text-xs font-bold uppercase tracking-wider">Instructor</span>
-                <span className="font-semibold text-gray-700 text-sm">{state.instructor || "Team LMS"}</span>
+                <span className="font-semibold text-gray-700 text-sm">{instructorName || "Team LMS"}</span>
               </div>
 
               <div className="flex justify-between items-center">

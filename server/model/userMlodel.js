@@ -43,6 +43,12 @@ const userSchema = new mongoose.Schema(
         return this.role === "educator"? false : true;
       },
     },
+    enrolledCourses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
   },
   { timestamps: true } // Automatically adds createdAt & updatedAt
 );

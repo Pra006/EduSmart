@@ -32,6 +32,9 @@ const CourseDetails = () => {
         courseId: courseData._id, 
         courseName: courseData.title,
         coursePrice: courseData.price,
+        instructorName: courseData.instructor,
+        thumbnail: courseData.thumbnail,
+        category: courseData.category,
       }
     });
   };

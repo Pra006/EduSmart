@@ -25,7 +25,7 @@ const Quickaction = () => {
                         <Edit className='w-5 h-5' />
                         <span className='text-sm font-medium'>Courses</span>
                     </button>
-                    <button className='flex flex-col items-center gap-2 py-4 px-4 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-md transition-colors'>
+                    <button onClick={()=>{navigate('/educator/student')}} className='flex flex-col items-center gap-2 py-4 px-4 border border-gray-300 hover:bg-gray-50 text-gray-700 rounded-md transition-colors'>
                         <MessageSquare className='w-5 h-5' />
                         <span className='text-sm font-medium'>Message Students</span>
                     </button>

@@ -48,10 +48,10 @@ const PaymentSuccess = () => {
             amount: state.amount || "Paid", 
           };
 
-          console.log("Sending enrollment data:", enrollmentData);
-          const response = await axios.post("http://localhost:3000/api/enroll/create", enrollmentData);
+          console.log("📤 Sending enrollment data:", enrollmentData);
+          const response = await axios.post("/api/enrollment/create", enrollmentData);
           
-          console.log("Enrollment saved to MongoDB successfully:", response.data);
+          console.log("✅ Enrollment saved to MongoDB successfully:", response.data);
           setIsEnrolling(false);
         } catch (err) {
           console.error("Error saving enrollment:", err.response?.data || err.message);

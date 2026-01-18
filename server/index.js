@@ -12,6 +12,7 @@ import paymentRoute from './routes/paymentRoute.js';
 import courseRoute from './routes/courseRoute.js';
 import enrollRoute from './routes/enrollRoute.js';
 import adminRoute from './routes/adminRoute.js';
+import notificationRoute from './routes/notificationRoute.js';
 
 const app = express();
 
@@ -35,8 +36,8 @@ app.use(cors({
         process.env.CLIENT_URL || 'http://localhost:5173'
     ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control'],
 }));
 
 // ✅ CRITICAL: Serve static video files with proper headers
@@ -68,8 +69,9 @@ app.use(express.urlencoded({ limit: "100mb", extended: true }));
 app.use('/api/user', UserRoute);
 app.use('/api/payment', paymentRoute);
 app.use('/api/course', courseRoute);
-app.use('/api/enroll', enrollRoute);
+app.use('/api/enrollment', enrollRoute);
 app.use('/api/admin', adminRoute);
+app.use('/api', notificationRoute);
 
 // Health Check with enhanced debugging
 app.get('/api/health', (req, res) => {

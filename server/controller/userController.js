@@ -6,7 +6,7 @@ export const Login = async (req, res) => {
   try {
     const { email, password, role } = req.body;
 
-    // 1. Basic Validation
+
     if (!email || !password || !role) {
       return res.send({ message: "All fields are required", success: false });
     }
@@ -15,7 +15,6 @@ export const Login = async (req, res) => {
       return res.send({ message: "Invalid role specified", success: false });
     }
 
-    // 2. User Existence & Role Check
     const existingUser = await userMlodel.findOne({ email });
     if (!existingUser) {
       return res.send({ message: "User does not exist", success: false });
@@ -97,7 +96,6 @@ export const Signup = async (req, res) => {
       return res.send({ message: "Admin signup is not allowed", success: false });
     }
 
-    //  Document required ONLY for educator
     if (role === "educator" && !document) {
       return res.send({ message: "Educator certificate document is required", success: false });
     }
@@ -151,6 +149,18 @@ export const getMe = async (req, res) => {
       user,
       success: true,
     });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: error.message, success: false });
+  }
+};
+
+export const Logout = (req, res) => {
+  try {
+    return res
+      .clearCookie("token")
+      .status(200)
+      .json({ message: "Logged out successfully", success: true });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: error.message, success: false });

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Routes, Route, useMatch } from 'react-router-dom'
+import axios from 'axios'
 import { AuthProvider } from './Auth/AuthContext.jsx'
 import Home from './pages/student/Home.jsx'
 import CoursesList from './pages/student/CoursesList.jsx'
@@ -27,9 +28,14 @@ import NewCourse from './components/educator/NewCourse.jsx';
 import Courses from './components/educator/Courses.jsx'
 import Admin from './pages/admin/Admin.jsx'
 import StudentProfile from './components/student/StudentProfile.jsx'
+import ManageStudent from './components/educator/ManageStudent.jsx'
+
     
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+// Configure Axios Default BaseURL
+axios.defaults.baseURL = 'http://localhost:3000';
 
 const App = () => {
   const isEducatorRoute = useMatch('/educator/*');
@@ -56,6 +62,7 @@ const App = () => {
           <Route path="/course-player"element={<CoursePlayer />} />
           <Route path="/my-profile" element={<StudentProfile/>}/>
          
+         
           <Route path='/educator'element={<Educator />}>
             <Route path='educator' element={<Dashboard />} />
             <Route path='add-course' element={<AddCourse />} />
@@ -63,6 +70,8 @@ const App = () => {
             <Route path='student-enrolled' element={<StudentEnrolled />} />
             <Route path='new-course' element={<NewCourse />} />
             <Route path='courses' element={<Courses />}/>
+            <Route path='student' element={<ManageStudent />}/>
+            <Route path='student/:courseId' element={<ManageStudent />}/>
           </Route>
 
           <Route path='/admin' element={<Admin/>}>

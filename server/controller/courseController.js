@@ -1,11 +1,14 @@
 import courseCreate from "../model/courseCreate.js";
+import { notificationModel } from "../model/notificationModel.js";
+import Enrollment from "../model/enrollModel.js";
+import mongoose from "mongoose";
 
 export const createCourse = async (req, res) => {
     try {
-        // 1. Destructure the text fields from req.body
+  
         const { title, category, instructor, price, duration, thumbnail } = req.body;
         
-        // 2. Parse the JSON strings sent from the frontend
+
         const learn = JSON.parse(req.body.learn || "[]");
         const lessonMetadata = JSON.parse(req.body.lessonMetadata || "[]");
 
@@ -14,13 +17,13 @@ export const createCourse = async (req, res) => {
             return {
                 title: lesson.title,
                 duration: lesson.duration,
-                // We store the relative path for flexibility
+
                 videoUrl: file ? `/uploads/${file.filename}` : "",
                 videoName: file ? file.originalname : ""
             };
         });
 
-        // 4. Create the course document with the mapped lessons
+
         const course = await courseCreate.create({
             title,
             category,
@@ -31,6 +34,15 @@ export const createCourse = async (req, res) => {
             learn,
             lessons // This will now correctly contain your video paths
         });
+
+        // Create notification for course creation
+        await notificationModel.create({
+            title: "New Course Added",
+            message: `${course.title} has been published by ${course.instructor}`,
+            type: "COURSE_CREATED",
+            courseId: course._id,
+            receiverRole: "STUDENT"
+        })
 
         res.status(201).json(course);
     } catch (error) {
@@ -139,3 +151,50 @@ export const deleteCourse = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+ export const getEnrolledStudentsByCourse = async (req, res) => {
+     try {
+    const { courseId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(courseId)) {
+      return res.status(400).json({ success: false, message: "Invalid course ID" });
+    }
+
+    const course = await courseCreate.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ success: false, message: "Course not found" });
+    }
+
+    const enrollments = await Enrollment.find({ courseId })
+      .populate({
+        path: "studentId",
+        select: "fullname email"
+      })
+      .sort({ enrolledAt: -1 });
+
+    const students = enrollments.map((enroll) => {
+      return {
+        _id: enroll._id,
+        studentId: {
+          _id: enroll.studentId?._id,
+          name: enroll.studentId?.fullname || "Unknown",
+          email: enroll.studentId?.email || "N/A"
+        },
+        progress: enroll.progress || 0,
+        enrolledAt: enroll.enrolledAt,
+        status: enroll.status,
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      course: {
+        _id: course._id,
+        title: course.title
+      },
+      students,
+    });
+  } catch (error) {
+    console.error("Manage Students Error:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

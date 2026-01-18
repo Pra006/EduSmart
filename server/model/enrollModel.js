@@ -24,6 +24,30 @@ const enrollmentSchema = new mongoose.Schema({
     enum: ['completed', 'pending', 'failed'],
     default: 'completed',
   },
+
+  // Remove completedLessons; use lessonsProgress instead
+  lessonsProgress: [
+    {
+      lessonId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Lesson',
+        required: true,
+      },
+      watchedSeconds: {
+        type: Number,
+        default: 0,
+      },
+      duration: {
+        type: Number,
+        default: 0, // store total video duration
+      },
+    }
+  ],
+
+  progress: {
+    type: Number,
+    default: 0, // will calculate based on lessonsProgress
+  },
   enrolledAt: {
     type: Date,
     default: Date.now,
@@ -32,4 +56,4 @@ const enrollmentSchema = new mongoose.Schema({
 
 const Enrollment = mongoose.model('Enrollment', enrollmentSchema);
 
-export default Enrollment;  
+export default Enrollment;

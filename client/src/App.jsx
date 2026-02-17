@@ -29,12 +29,12 @@ import Courses from './components/educator/Courses.jsx'
 import Admin from './pages/admin/Admin.jsx'
 import StudentProfile from './components/student/StudentProfile.jsx'
 import ManageStudent from './components/educator/ManageStudent.jsx'
+import About from './components/student/About.jsx'
+import Contact from './components/student/Contact.jsx'    
 
-    
-// Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
-// Configure Axios Default BaseURL
+
 axios.defaults.baseURL = 'http://localhost:3000';
 
 const App = () => {
@@ -61,6 +61,8 @@ const App = () => {
           <Route path="/my-courses" element={<MyCourse />} />
           <Route path="/course-player"element={<CoursePlayer />} />
           <Route path="/my-profile" element={<StudentProfile/>}/>
+          <Route path="/about" element={<About/>}/>
+          <Route path="/contact" element={<Contact/>}/>
          
          
           <Route path='/educator'element={<Educator />}>

@@ -78,19 +78,31 @@ const Login = () => {
             className='border border-gray-200 p-2 rounded-lg w-full'
           />
 
+          {/* Removed Admin radio option */}
           <div className="flex justify-center gap-4">
-            <label>
-              <input type="radio" name="role" value="student" checked={values.role === 'student'} onChange={handleChange}/> Student
+            <label className="cursor-pointer">
+              <input 
+                type="radio" 
+                name="role" 
+                value="student" 
+                checked={values.role === 'student'} 
+                onChange={handleChange}
+                className="mr-1"
+              /> Student
             </label>
-            <label>
-              <input type="radio" name="role" value="educator" checked={values.role === 'educator'} onChange={handleChange}/> Educator
-            </label>
-            <label>
-              <input type="radio" name="role" value="admin" checked={values.role === 'admin'} onChange={handleChange}/> Admin
+            <label className="cursor-pointer">
+              <input 
+                type="radio" 
+                name="role" 
+                value="educator" 
+                checked={values.role === 'educator'} 
+                onChange={handleChange}
+                className="mr-1"
+              /> Educator
             </label>
           </div>
 
-          <button className='bg-blue-500 text-white px-4 py-2 rounded-full w-full hover:bg-blue-600'>
+          <button className='bg-blue-500 text-white px-4 py-2 rounded-full w-full hover:bg-blue-600 transition-colors'>
             Login
           </button>
         </form>

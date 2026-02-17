@@ -3,10 +3,6 @@ import User from "../model/userMlodel.js";
 import mongoose from "mongoose";
 import Course from "../model/courseCreate.js";
 
-/**
- * Create a new enrollment for a student
- * Initializes lessonsProgress for all course lessons
- */
 export const createEnrollment = async (req, res) => {
   try {
     const { studentId, courseId, paymentId, amount } = req.body;
@@ -25,13 +21,13 @@ export const createEnrollment = async (req, res) => {
     const existingEnrollment = await Enrollment.findOne({ studentId, courseId });
     if (existingEnrollment) return res.status(400).json({ message: "Already enrolled in this course" });
 
-    // Get course lessons
+   
     const course = await Course.findById(courseId);
     const lessons = course?.lessons || [];
 
-    // Initialize lessonsProgress for each lesson
+    
     const lessonsProgress = lessons.map((lesson) => {
-      // Parse duration to number - remove "min" or other text if present
+
       let durationValue = 0;
       if (lesson.duration) {
         const parsed = parseInt(lesson.duration);
@@ -78,10 +74,7 @@ export const getStudentCourses = async (req, res) => {
   }
 };
 
-/**
- * Update watched seconds for a lesson
- * Body: { studentId, courseId, lessonId, watchedSeconds }
- */
+
 export const updateLessonProgress = async (req, res) => {
   try {
     const { studentId, courseId, lessonId, watchedSeconds } = req.body;
@@ -93,17 +86,17 @@ export const updateLessonProgress = async (req, res) => {
     const enrollment = await Enrollment.findOne({ studentId, courseId });
     if (!enrollment) return res.status(404).json({ success: false, message: "Enrollment not found" });
 
-    // Find the lesson in lessonsProgress
+   
     const lessonIndex = enrollment.lessonsProgress.findIndex(l => l.lessonId.toString() === lessonId);
     if (lessonIndex === -1) return res.status(404).json({ success: false, message: "Lesson not found in enrollment" });
 
-    // Update watchedSeconds safely
+   
     enrollment.lessonsProgress[lessonIndex].watchedSeconds = Math.min(
       watchedSeconds,
       enrollment.lessonsProgress[lessonIndex].duration
     );
 
-    // Recalculate overall course progress
+
     const totalLessons = enrollment.lessonsProgress.length;
     const totalPercentage = enrollment.lessonsProgress.reduce((sum, l) => {
       if (l.duration > 0) return sum + (l.watchedSeconds / l.duration) * 100;
@@ -125,9 +118,7 @@ export const updateLessonProgress = async (req, res) => {
   }
 };
 
-/**
- * Get course progress for a student
- */
+
 export const getCourseProgress = async (req, res) => {
   try {
     const { studentId, courseId } = req.params;
@@ -152,3 +143,17 @@ export const getCourseProgress = async (req, res) => {
     res.status(500).json({ success: false, message: "Error fetching course progress", error: error.message });
   }
 };
+
+export const getAllEnrollments = async (req, res) => {
+  try{
+    const enrollments = await Enrollment.find()
+      .populate("studentId", "fullname email")
+      .populate("courseId", "title price")
+      .sort({ createdAt: -1})
+
+    res.status(200).json({ success: true, enrollments})
+  } catch (error) {
+    console.error("❌ [getAllEnrollments] Error:", error);
+    res.status(500).json({ success: false, message: "Error fetching enrollments", error: error.message });
+  }
+} 

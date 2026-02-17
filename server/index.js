@@ -40,14 +40,13 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization', 'Cache-Control'],
 }));
 
-// ✅ CRITICAL: Serve static video files with proper headers
+
 app.use('/uploads', express.static(uploadsDir, {
     setHeaders: (res, filePath) => {
-        // Enable video streaming
+
         res.set('Accept-Ranges', 'bytes');
         res.set('Access-Control-Allow-Origin', '*');
         
-        // Set correct content type based on file extension
         if (filePath.endsWith('.mp4')) {
             res.set('Content-Type', 'video/mp4');
         } else if (filePath.endsWith('.webm')) {
@@ -60,7 +59,7 @@ app.use('/uploads', express.static(uploadsDir, {
     }
 }));
 
-// ✅ Body parser with large limits for video metadata
+
 app.use(cookieParser());
 app.use(express.json({ limit: "100mb" }));
 app.use(express.urlencoded({ limit: "100mb", extended: true }));
@@ -115,7 +114,7 @@ app.get('/', (req, res) => {
             uploads: '/uploads'
         }
     });
-});
+})
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

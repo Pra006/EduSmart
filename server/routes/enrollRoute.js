@@ -1,10 +1,11 @@
 import express from 'express';
-import { createEnrollment, getStudentCourses, updateLessonProgress, getCourseProgress } from '../controller/enrollController.js';
+import { createEnrollment, getStudentCourses, updateLessonProgress, getCourseProgress, getAllEnrollments } from '../controller/enrollController.js';
 
 const router = express.Router();
 
 router.post('/create', createEnrollment);
 router.get('/my-courses/:studentId', getStudentCourses);
+router.get('/all', getAllEnrollments);
 
 router.post('/complete-lesson', updateLessonProgress);
 router.post('/update-lesson-progress', updateLessonProgress);
